@@ -15,7 +15,7 @@ export const verifyPin = (payload: any) => api.post(`/user/verifyPin`, payload);
 export const getUserById = (payload: any) =>
   api.post(`/user/getUserById`, payload);
 
-export const updateUser = (id: string, payload: any) =>
+export const updateUser = (id: string, payload: FormData) =>
   api.post(`/user/update/${id}`, payload);
 
 export const logoutUser = (payload: any) =>

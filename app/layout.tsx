@@ -23,7 +23,7 @@ const siteUrl = "https://leadoapp.vercel.app";
 const siteName = "Leado";
 const title = "Leado — Never lose a lead to a forgotten follow-up";
 const description =
-  "Leado helps small sales teams track leads, set follow-up reminders, and close more deals — without the spreadsheet chaos.";
+  "Leado helps small sales teams track leads, set follow-up reminders, and close more deals without the spreadsheet chaos.";
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),

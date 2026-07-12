@@ -50,7 +50,7 @@ export default function ProfilePage() {
           phone: userData.phone || "",
         });
         if (userData.image) {
-          const imageUrl = `${MEDIA_URL}/users/${userData.image}`;
+          const imageUrl = userData.image;
           setExistingImage(imageUrl);
           setImagePreview(imageUrl);
         }
@@ -124,8 +124,8 @@ export default function ProfilePage() {
         return;
       }
 
-      if (file.size > 1 * 1024 * 1024) {
-        toast.error("Image size should be less than 1MB");
+      if (file.size > 500 * 1024) {
+        toast.error("Image size should be less than 500KB");
         return;
       }
 
@@ -196,7 +196,7 @@ export default function ProfilePage() {
     });
     // Reset image preview to existing image
     if (user?.image) {
-      const imageUrl = `${MEDIA_URL}/${user.image}`;
+      const imageUrl = user.image;
       setImagePreview(imageUrl);
       setExistingImage(imageUrl);
     } else {
@@ -222,7 +222,7 @@ export default function ProfilePage() {
       return imagePreview;
     }
     if (user?.image) {
-      return `${MEDIA_URL}/users/${user.image}`;
+      return user.image;
     } else if (user?.profilePic) {
       return user.profilePic;
     }
@@ -321,7 +321,7 @@ export default function ProfilePage() {
                         Choose Image
                       </Button>
                       <p className="text-xs text-muted-foreground">
-                        Supported formats: JPEG, PNG, JPG, WEBP (max 1MB)
+                        Supported formats: JPEG, PNG, JPG, WEBP (max 500kb)
                       </p>
                     </div>
                   )}
