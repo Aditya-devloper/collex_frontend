@@ -21,7 +21,6 @@ import { Label } from "@/components/ui/label";
 import { getUserById, updateUser } from "@/services/services";
 import Loading from "@/components/shared/loading";
 import { toast } from "sonner";
-import { MEDIA_URL } from "@/constants";
 
 export default function ProfilePage() {
   const [user, setUser] = useState<any>(null);
@@ -37,6 +36,13 @@ export default function ProfilePage() {
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [existingImage, setExistingImage] = useState<string>("");
+
+  useEffect(() => {
+    if (sessionStorage.getItem("reload-on-back")) {
+      sessionStorage.removeItem("reload-on-back");
+      window.location.reload();
+    }
+  }, []);
 
   const fetchUser = async () => {
     try {

@@ -37,31 +37,12 @@ import {
   Share2,
   HelpCircle,
   ArrowLeft,
+  Bot,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-
-// Helper function to get source icon
-const getSourceIcon = (source: string) => {
-  switch (source?.toLowerCase()) {
-    case "call":
-      return <Phone className="h-4 w-4" />;
-    case "whatsapp":
-      return <MessageSquare className="h-4 w-4" />;
-    case "email":
-      return <Mail className="h-4 w-4" />;
-    case "website":
-      return <Globe className="h-4 w-4" />;
-    case "facebook":
-      return <Facebook className="h-4 w-4" />;
-    case "instagram":
-      return <Instagram className="h-4 w-4" />;
-    case "referral":
-      return <Share2 className="h-4 w-4" />;
-    default:
-      return <HelpCircle className="h-4 w-4" />;
-  }
-};
+import { CallByAiDialog } from "@/components/call-agent/CallByAiDialog";
+import { CallOutcomeCard } from "@/components/call-agent/CallOutcomeCard";
 
 // Helper function to get status badge variant
 const getStatusBadge = (status: string) => {
@@ -88,7 +69,7 @@ const getStatusBadge = (status: string) => {
       return (
         <Badge
           variant="outline"
-          className="bg-yellow-50 text-yellow-700 border-yellow-200"
+          className="bg-green-50 text-green-700 border-green-200"
         >
           Interested
         </Badge>
@@ -146,6 +127,8 @@ const getActivityIcon = (activityType: string) => {
       return <CheckCircle2 className="h-5 w-5 text-green-500" />;
     case "lost":
       return <UserX className="h-5 w-5 text-red-500" />;
+    case "ai_call_completed":
+      return <Bot className="h-5 w-5 text-violet-500" />;
     default:
       return <AlertCircle className="h-5 w-5 text-gray-500" />;
   }
@@ -183,16 +166,39 @@ const formatMetadata = (metadata: any, activityType: string) => {
     );
   }
 
+  if (activityType === "ai_call_completed") {
+    return (
+      <span className="text-sm text-muted-foreground">
+        {metadata.interested && (
+          <>
+            Response:{" "}
+            <span className="font-medium capitalize">
+              {metadata.interested}
+            </span>
+          </>
+        )}
+        {metadata.preferredDay && (
+          <>
+            {" "}
+            · Preferred day:{" "}
+            <span className="font-medium">{metadata.preferredDay}</span>
+          </>
+        )}
+        {metadata.attemptNumber && <> · Attempt #{metadata.attemptNumber}</>}
+      </span>
+    );
+  }
+
   return null;
 };
 
 // Helper function to format date
 const formatDate = (date: string) => {
-  return moment(date).format("MMM D, YYYY");
+  return moment(date).format("DD MMM, YYYY");
 };
 
 const formatDateTime = (date: string) => {
-  return moment(date).format("MMM D YYYY, h:mm A");
+  return moment(date).format("DD MMM YYYY, h:mm A");
 };
 
 interface Lead {
@@ -207,9 +213,16 @@ interface Lead {
   follow_up_date: string;
   assigned_to: string;
   is_deleted: boolean;
-  notes: boolean;
+  notes: string;
   createdAt: string;
   updatedAt: string;
+  call_attempts?: number;
+  last_call_status?: string;
+  last_call_at?: string;
+  last_call_result?: {
+    interested?: string;
+    preferred_day?: string;
+  } | null;
 }
 
 interface Activity {
@@ -284,12 +297,20 @@ const LeadDetail = () => {
             Lead Details
           </h1>
         </div>
-        <Link href={`/leads/edit/${lead._id}`}>
-          <Button variant={"outline"} size={"sm"}>
-            <Edit className="h-4 w-4 mr-1" />
-            Edit Lead
-          </Button>
-        </Link>
+        <div className="flex items-center gap-3">
+          <Link href={`/leads/edit/${lead._id}`}>
+            <Button variant={"outline"} size={"sm"}>
+              <Edit className="h-4 w-4 mr-1" />
+              Edit Lead
+            </Button>
+          </Link>
+
+          <CallByAiDialog
+            leadId={lead._id}
+            leadName={lead.name}
+            notes={lead.notes}
+          />
+        </div>
       </div>
 
       {/* Lead Information Grid */}
@@ -350,7 +371,6 @@ const LeadDetail = () => {
             <div className="flex items-center justify-between">
               <span className="text-sm text-muted-foreground">Source</span>
               <div className="flex items-center gap-2">
-                {getSourceIcon(lead.source)}
                 <span className="text-sm capitalize">
                   {lead.source || "N/A"}
                 </span>
@@ -361,7 +381,6 @@ const LeadDetail = () => {
                 Follow-up Date
               </span>
               <div className="flex items-center gap-2">
-                <Calendar className="h-4 w-4 text-muted-foreground" />
                 <span className="text-sm font-medium">
                   {lead.follow_up_date
                     ? formatDate(lead.follow_up_date)
@@ -372,19 +391,26 @@ const LeadDetail = () => {
           </CardContent>
         </Card>
 
-        {/* Notes Section */}
-        <Card className="col-span-1">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 ">
-            <CardTitle className="text-lg font-semibold">Notes</CardTitle>
-            <MessageSquare className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <p className="text-sm whitespace-pre-wrap wrap-break-word">
-              {lead.notes || "No notes added yet"}
-            </p>
-          </CardContent>
-        </Card>
+        {/* AI Call Outcome Card naya add kiya */}
+        <CallOutcomeCard
+          lastCallStatus={lead.last_call_status}
+          lastCallAt={lead.last_call_at}
+          callAttempts={lead.call_attempts}
+          lastCallResult={lead.last_call_result}
+        />
       </div>
+      {/* Notes Section */}
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 ">
+          <CardTitle className="text-lg font-semibold">Notes</CardTitle>
+          <MessageSquare className="h-4 w-4 text-muted-foreground" />
+        </CardHeader>
+        <CardContent>
+          <p className="text-sm whitespace-pre-wrap wrap-break-word">
+            {lead.notes || "No notes added yet"}
+          </p>
+        </CardContent>
+      </Card>
 
       {/* Activities Section */}
       <Card>
@@ -409,7 +435,7 @@ const LeadDetail = () => {
               {/* Timeline line */}
               <div className="absolute left-4.75 top-3 h-[calc(100%-24px)] w-px bg-border md:left-5.75" />
 
-              {leadActivity.map((activity, index) => (
+              {leadActivity.map((activity) => (
                 <div key={activity._id} className="relative flex gap-4">
                   {/* Timeline dot */}
                   <div className="relative z-10 mt-1">

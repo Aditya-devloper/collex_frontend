@@ -9,6 +9,8 @@ import {
   Briefcase,
   UserCircle,
   Building2,
+  Brain,
+  History,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
@@ -21,6 +23,8 @@ const navItems = [
   // { name: "Agents", href: "/agents", icon: Briefcase },
   { name: "Profile", href: "/profile", icon: UserCircle },
   { name: "Business", href: "/business", icon: Building2 },
+  { name: "Knowledge Base", href: "/ai-knowledge", icon: Brain },
+  { name: "Call History", href: "/calls-history", icon: History },
 ];
 
 interface SidebarProps {

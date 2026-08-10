@@ -4,7 +4,15 @@ import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Building, Mail, Phone, MapPin, Edit, Loader2 } from "lucide-react";
+import {
+  Building,
+  Mail,
+  Phone,
+  MapPin,
+  Edit,
+  Loader2,
+  Shield,
+} from "lucide-react";
 import { Label } from "@/components/ui/label";
 import { getBusiness, updateBusiness } from "@/services/services";
 import Loading from "@/components/shared/loading";
@@ -18,8 +26,12 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { businessTypes } from "@/data";
+import moment from "moment";
+import { useRouter } from "next/navigation";
+import { Badge } from "@/components/ui/badge";
 
 export default function Business() {
+  const router = useRouter();
   const [loading, setLoading] = useState(true);
   const [business, setBusiness] = useState<any>(null);
   const [saving, setSaving] = useState(false);
@@ -287,120 +299,113 @@ export default function Business() {
               </CardContent>
             </Card>
 
-            {/* Subscription Plan Card - Non-editable */}
-            {/* <Card>
-              <CardHeader>
+            {/* Plan Card */}
+            <Card>
+              <CardHeader className="flex items-center justify-between">
                 <CardTitle className="flex items-center gap-2 text-lg">
-                  <CreditCard className="h-5 w-5" />
-                  Subscription Plan
+                  <Shield className="h-5 w-5" />
+                  Current Plan
                 </CardTitle>
+                <div className="flex gap-2 pt-1">
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => router.push("/transactions")}
+                    className="flex-1"
+                  >
+                    History
+                  </Button>
+                  <Button
+                    size="sm"
+                    onClick={
+                      () => (window.location.href = "/")
+                      // router.push(
+                      //   `/billing?plan=pro&billing=${business?.plan.billing_cycle}&currency=INR`,
+                      // )
+                    }
+                    className="flex-1"
+                  >
+                    Upgrade
+                  </Button>
+                </div>
               </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="rounded-lg border-2 border-primary/20 bg-primary/5 p-4">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm font-medium text-muted-foreground">
-                        Current Plan
-                      </p>
-                      <p className="text-2xl font-bold capitalize">
-                        {business?.plan?.name || "Free"}
-                      </p>
+              <CardContent>
+                {business?.plan ? (
+                  <div className="space-y-4">
+                    {/* Plan name + status */}
+                    <div className="grid grid-cols-2 gap-3">
+                      <div className="rounded-lg bg-muted/50 p-3">
+                        <p className="flex justify-between text-xs text-muted-foreground">
+                          Plan
+                          <Badge
+                            className={
+                              business?.plan.is_active
+                                ? "bg-green-100 text-green-700 border-green-200"
+                                : "bg-red-100 text-red-700 border-red-200"
+                            }
+                          >
+                            {business?.plan.is_active ? "Active" : "Expired"}
+                          </Badge>
+                        </p>
+                        <p className="text-sm font-medium capitalize">
+                          {business?.plan.name}
+                        </p>
+                      </div>
+                      <div className="rounded-lg bg-muted/50 p-3">
+                        <p className="text-xs text-muted-foreground mb-1">
+                          Billing
+                        </p>
+                        <p className="text-sm font-medium capitalize">
+                          {business?.plan.billing_cycle || "-"}
+                        </p>
+                      </div>
                     </div>
-                    <Award className="h-8 w-8 text-primary" />
-                  </div>
-                  <Separator className="my-3" />
-                  <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                    <div>
-                      <p className="text-xs text-muted-foreground">
-                        Agent Limit
-                      </p>
-                      <p className="text-lg font-semibold flex items-center gap-1">
-                        <Users className="h-4 w-4" />
-                        {business?.plan?.agent_limit || 1}
-                      </p>
-                    </div>
-                    <div>
-                      <p className="text-xs text-muted-foreground">
-                        Lead Limit
-                      </p>
-                      <p className="text-lg font-semibold flex items-center gap-1">
-                        <TrendingUp className="h-4 w-4" />
-                        {business?.plan?.lead_limit || 50}
-                      </p>
-                    </div>
-                  </div>
-                </div>
 
-                <div className="grid gap-4 sm:grid-cols-2">
-                  {business?.plan?.start_date && (
-                    <div className="space-y-2">
-                      <Label className="text-xs font-medium uppercase text-muted-foreground">
-                        Plan Start Date
-                      </Label>
-                      <div className="flex items-center gap-2 rounded-lg bg-muted/50 p-2">
-                        <Calendar className="h-4 w-4 text-muted-foreground" />
-                        <p className="text-sm">
-                          {moment(business.plan.start_date).format(
-                            "MMMM D, YYYY",
+                    {/* Dates */}
+                    <div className="grid grid-cols-2 gap-3">
+                      <div className="rounded-lg bg-muted/50 p-3">
+                        <p className="text-xs text-muted-foreground mb-1">
+                          Start Date
+                        </p>
+                        <p className="text-sm font-medium">
+                          {moment(business?.plan.start_date).format(
+                            "DD MMM, YYYY",
+                          )}
+                        </p>
+                      </div>
+                      <div className="rounded-lg bg-muted/50 p-3">
+                        <p className="text-xs text-muted-foreground mb-1">
+                          Expires On
+                        </p>
+                        <p className="text-sm font-medium">
+                          {moment(business?.plan.end_date).format(
+                            "DD MMM, YYYY",
                           )}
                         </p>
                       </div>
                     </div>
-                  )}
-
-                  {business?.plan?.expiry_date && (
-                    <div className="space-y-2">
-                      <Label className="text-xs font-medium uppercase text-muted-foreground">
-                        Plan Expiry Date
-                      </Label>
-                      <div className="flex items-center gap-2 rounded-lg bg-muted/50 p-2">
-                        <Calendar className="h-4 w-4 text-muted-foreground" />
-                        <p className="text-sm">
-                          {moment(business.plan.expiry_date).format(
-                            "MMMM D, YYYY",
-                          )}
-                        </p>
-                      </div>
-                    </div>
-                  )}
-                </div>
-
-                {business?.plan?.name === "pro" && (
-                  <div className="mt-4 rounded-lg border border-green-200 bg-green-50/30 p-4">
-                    <h4 className="mb-3 text-sm font-semibold text-green-700 flex items-center gap-2">
-                      <Award className="h-4 w-4" />
-                      Pro Plan Benefits
-                    </h4>
-                    <div className="grid gap-2 sm:grid-cols-2">
-                      <div className="flex items-center gap-2">
-                        <CheckCircle className="h-3 w-3 text-green-600" />
-                        <span className="text-xs">Unlimited Agents</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <CheckCircle className="h-3 w-3 text-green-600" />
-                        <span className="text-xs">Unlimited Leads</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <CheckCircle className="h-3 w-3 text-green-600" />
-                        <span className="text-xs">Priority Support</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <CheckCircle className="h-3 w-3 text-green-600" />
-                        <span className="text-xs">Advanced Analytics</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <CheckCircle className="h-3 w-3 text-green-600" />
-                        <span className="text-xs">Custom Reports</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <CheckCircle className="h-3 w-3 text-green-600" />
-                        <span className="text-xs">API Access</span>
-                      </div>
-                    </div>
+                  </div>
+                ) : (
+                  /* No plan state */
+                  <div className="flex flex-col items-center gap-3 py-4 text-center">
+                    <p className="text-sm text-muted-foreground">
+                      You're on the free trial. Upgrade to keep access after 14
+                      days.
+                    </p>
+                    <Button
+                      size="sm"
+                      onClick={() =>
+                        router.push(
+                          "/billing?plan=pro&billing=monthly&currency=INR",
+                        )
+                      }
+                    >
+                      Upgrade to Pro
+                    </Button>
                   </div>
                 )}
               </CardContent>
-            </Card> */}
+            </Card>
           </div>
         </div>
       )}
