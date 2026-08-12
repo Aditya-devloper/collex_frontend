@@ -22,7 +22,7 @@ export interface CallHistoryItem {
   };
   call_status: "completed" | "no_answer" | "failed" | "in_progress";
   call_result?: string | null;
-  cost_charged: number;
+  call_balance: number;
   attempt_number: number;
   createdAt: string;
 }
@@ -67,7 +67,7 @@ export function CallHistoryTable({ calls }: { calls: CallHistoryItem[] }) {
             <TableRow>
               <TableHead>Lead</TableHead>
               <TableHead>Phone</TableHead>
-              <TableHead>Credits</TableHead>
+              <TableHead>Calls</TableHead>
               <TableHead>Status</TableHead>
               <TableHead className="text-right">Called at</TableHead>
             </TableRow>
@@ -85,7 +85,7 @@ export function CallHistoryTable({ calls }: { calls: CallHistoryItem[] }) {
                 </TableCell>
 
                 <TableCell className="text-muted-foreground">
-                  $ {call.cost_charged.toFixed(2)}
+                  - {call?.call_balance ? 1 : 0}
                 </TableCell>
 
                 <TableCell>

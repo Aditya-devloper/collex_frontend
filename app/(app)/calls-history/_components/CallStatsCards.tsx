@@ -83,8 +83,8 @@ export function CallStatsCards({
       />
 
       <StatCard
-        label="Credits used"
-        value={`$ ${creditsUsed.toFixed(2)}`}
+        label="Calls used"
+        value={creditsUsed}
         icon={Wallet}
         accent="muted"
       />

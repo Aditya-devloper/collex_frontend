@@ -10,7 +10,7 @@ import {
 import { CallStatsCards } from "./_components/CallStatsCards";
 import { Button } from "@/components/ui/button";
 import { Wallet } from "lucide-react";
-import { AddCreditsDialog } from "./_components/AddCreditsDialog";
+import { BuyCallsDialog } from "./_components/BuyCallsDialog";
 
 export default function CallsHistory() {
   const [calls, setCalls] = useState<CallHistoryItem[]>([]);
@@ -59,8 +59,8 @@ export default function CallsHistory() {
           className="bg-gray-800 hover:bg-gray-900"
           onClick={() => setCreditsDialogOpen(true)}
         >
-          <Wallet className="h-4 w-4 hidden sm:block" /> ${" "}
-          {stats?.creditsRemaining.toFixed(2) ?? 0} Available Credits
+          <Wallet className="h-4 w-4 hidden sm:block" />
+          {stats?.creditsRemaining.toFixed(2) ?? 0} Calls Available
         </Button>
       </div>
 
@@ -73,10 +73,9 @@ export default function CallsHistory() {
 
       <CallHistoryTable calls={calls} />
 
-      <AddCreditsDialog
+      <BuyCallsDialog
         open={creditsDialogOpen}
         onOpenChange={setCreditsDialogOpen}
-        currentCredits={stats?.creditsRemaining ?? 0}
       />
     </div>
   );
