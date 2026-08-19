@@ -40,7 +40,7 @@ export function TransactionDetail({
 
   return (
     <Sheet open={detailOpen} onOpenChange={onClose}>
-      <SheetContent className="sm:max-w-lg overflow-y-auto">
+      <SheetContent className="w-full overflow-y-auto">
         <SheetHeader className="pb-0">
           <SheetTitle>{selectedTxn.transaction_id}</SheetTitle>
         </SheetHeader>

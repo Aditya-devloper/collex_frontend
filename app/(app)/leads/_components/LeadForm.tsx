@@ -18,6 +18,7 @@ import { DatePicker } from "@/app/(shared)/components/DatePicker";
 import { toast } from "sonner";
 import { createLead, getLeadById, updateLead } from "@/services/services";
 import Loading from "@/components/shared/loading";
+import PhoneInput from "react-phone-input-2";
 
 const statusOptions = [
   { value: "new", label: "New" },
@@ -105,6 +106,13 @@ export default function LeadForm() {
     }
   };
 
+  const handlePhoneChange = (value: string) => {
+    setForm((prev) => ({
+      ...prev,
+      phone: value,
+    }));
+  };
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setSave(true);
@@ -117,6 +125,7 @@ export default function LeadForm() {
       let res;
       const payload = {
         ...form,
+        phone: form.phone ? `+${form.phone.replace(/^\+/, "")}` : "",
         follow_up_date: form.follow_up_date
           ? form.follow_up_date.toLocaleDateString("en-CA")
           : null,
@@ -142,7 +151,8 @@ export default function LeadForm() {
     } catch (error: any) {
       console.log("handle submit error", error);
       toast.error(
-        error?.response?.data?.message ||
+        error?.response?.data?.response?.[0]?.msg ||
+          error?.response?.data?.message ||
           error?.message ||
           "Something went wrong",
       );
@@ -207,11 +217,15 @@ export default function LeadForm() {
                   </div>
                   <div>
                     <Label htmlFor="phone">Phone</Label>
-                    <Input
-                      id="phone"
-                      type={"number"}
-                      onChange={handleInputChange}
+                    <PhoneInput
+                      country="in"
                       value={form.phone}
+                      countryCodeEditable={false}
+                      enableSearch
+                      onChange={handlePhoneChange}
+                      containerClass="!w-full"
+                      inputClass="!w-full !h-9 !rounded-md !border !border-input !bg-white !py-1 !pr-3 !pl-[50px] !text-sm !shadow-xs"
+                      buttonClass="!h-9 !rounded-l-md !border-input !bg-white"
                     />
                   </div>
                   <div>

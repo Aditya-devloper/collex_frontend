@@ -19,6 +19,12 @@ const Home = () => {
       <FAQ />
       <FinalCTA />
       <Footer />
+
+      <script
+        src="http://localhost:3000/widget-loader.js"
+        data-business-id="6a40f7df40dac29d8d9991ce"
+        data-base-url="http://localhost:3000"
+      ></script>
     </main>
   );
 };

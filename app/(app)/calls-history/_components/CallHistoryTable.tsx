@@ -12,6 +12,7 @@ import { Badge } from "@/components/ui/badge";
 import { Phone } from "lucide-react";
 import moment from "moment";
 import { Card, CardContent } from "@/components/ui/card";
+import Loading from "@/components/shared/loading";
 
 export interface CallHistoryItem {
   _id: string;
@@ -25,6 +26,14 @@ export interface CallHistoryItem {
   call_balance: number;
   attempt_number: number;
   createdAt: string;
+  was_charged: boolean;
+}
+
+interface CallHistoryTableProps {
+  calls: CallHistoryItem[];
+  page: number;
+  limit: number;
+  loading: boolean;
 }
 
 const statusStyles: Record<CallHistoryItem["call_status"], string> = {
@@ -41,15 +50,16 @@ const statusLabels: Record<CallHistoryItem["call_status"], string> = {
   in_progress: "In progress",
 };
 
-function formatPhone(phone: string) {
-  if (phone.startsWith("91") && phone.length === 12) {
-    return `+91 ${phone.slice(2, 7)} ${phone.slice(7)}`;
+export function CallHistoryTable({
+  calls,
+  page,
+  limit,
+  loading,
+}: CallHistoryTableProps) {
+  if (loading) {
+    return <Loading />;
   }
 
-  return phone.startsWith("+") ? phone : `+${phone}`;
-}
-
-export function CallHistoryTable({ calls }: { calls: CallHistoryItem[] }) {
   if (calls.length === 0) {
     return (
       <div className="flex flex-col items-center gap-2 rounded-lg border border-dashed py-12 text-center">
@@ -60,51 +70,58 @@ export function CallHistoryTable({ calls }: { calls: CallHistoryItem[] }) {
   }
 
   return (
-    <Card>
-      <CardContent>
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Lead</TableHead>
-              <TableHead>Phone</TableHead>
-              <TableHead>Calls</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead className="text-right">Called at</TableHead>
-            </TableRow>
-          </TableHeader>
-
-          <TableBody>
-            {calls.map((call) => (
-              <TableRow key={call._id}>
-                <TableCell className="font-medium">
-                  {call.lead?.name || "Unknown"}
-                </TableCell>
-
-                <TableCell className="text-muted-foreground">
-                  {formatPhone(call.lead?.phone || "")}
-                </TableCell>
-
-                <TableCell className="text-muted-foreground">
-                  - {call?.call_balance ? 1 : 0}
-                </TableCell>
-
-                <TableCell>
-                  <Badge
-                    variant="outline"
-                    className={statusStyles[call.call_status]}
-                  >
-                    {statusLabels[call.call_status]}
-                  </Badge>
-                </TableCell>
-
-                <TableCell className="text-right text-muted-foreground">
-                  {moment(call.createdAt).format("DD MMM YYYY, hh:mm A")}
-                </TableCell>
+    <>
+      <Card>
+        <CardContent>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Sr. No</TableHead>
+                <TableHead>Lead</TableHead>
+                <TableHead>Phone</TableHead>
+                <TableHead>Calls</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead className="text-right">Called at</TableHead>
               </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </CardContent>
-    </Card>
+            </TableHeader>
+
+            <TableBody>
+              {calls.map((call, idx: number) => (
+                <TableRow key={call._id}>
+                  <TableCell className="font-medium">
+                    {(page - 1) * limit + idx + 1}.
+                  </TableCell>
+
+                  <TableCell className="font-medium">
+                    {call.lead?.name || "Unknown"}
+                  </TableCell>
+
+                  <TableCell className="text-muted-foreground">
+                    {call.lead?.phone || "-"}
+                  </TableCell>
+
+                  <TableCell className="text-muted-foreground">
+                    - {call?.was_charged ? 1 : 0}
+                  </TableCell>
+
+                  <TableCell>
+                    <Badge
+                      variant="outline"
+                      className={statusStyles[call.call_status]}
+                    >
+                      {statusLabels[call.call_status]}
+                    </Badge>
+                  </TableCell>
+
+                  <TableCell className="text-right text-muted-foreground">
+                    {moment(call.createdAt).format("DD MMM YYYY, hh:mm A")}
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </CardContent>
+      </Card>
+    </>
   );
 }

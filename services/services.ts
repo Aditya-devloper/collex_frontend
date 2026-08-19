@@ -21,13 +21,6 @@ export const updateUser = (id: string, payload: FormData) =>
 export const logoutUser = (payload: any) =>
   api.post(`/user/logoutUser`, payload);
 
-// agent
-export const createAgent = (payload: any) =>
-  api.post(`/user/createAgent`, payload);
-
-export const removeAgent = (id: string, payload: any) =>
-  api.post(`/user/removeAgent/${id}`, payload);
-
 // Business
 export const getBusiness = (payload: any) =>
   api.post(`/business/getBusiness`, payload);
@@ -40,6 +33,9 @@ export const updateBusiness = (payload: any) =>
 
 export const getBusinessById = (id: string, payload: any) =>
   api.post(`/business/getBusiness/${id}`, payload);
+
+export const getWidgetConfig = (id: string, payload: any) =>
+  api.post(`/business/getWidgetConfig/${id}`, payload);
 
 // Leads
 export const getLeads = (payload: any) => api.post(`/lead/getLeads`, payload);
@@ -90,23 +86,59 @@ export const confirmSubscription = (payload: any) =>
 export const checkPaymentStatus = (payload: any) =>
   api.post(`/subscription/checkPaymentStatus`, payload);
 
-// Agent
-export const uploadDoc = (payload: any) =>
-  api.post(`/agent/upload-doc`, payload);
+// Rag
+export const uploadDoc = (payload: any) => api.post(`/rag/upload-doc`, payload);
 
 export const getDocStatus = (payload: any) =>
-  api.post(`/agent/getDocStatus`, payload);
+  api.post(`/rag/getDocStatus`, payload);
 
-export const deleteDoc = (payload: any) =>
-  api.post(`/agent/deleteDoc`, payload);
+export const deleteDoc = (payload: any) => api.post(`/rag/deleteDoc`, payload);
 
-export const agentChat = (payload: any) => api.post(`/agent/chat`, payload);
+export const agentChat = (payload: any) => api.post(`/rag/chat`, payload);
 
+// Call-Agent
 export const triggerCall = (payload: any) =>
-  api.post(`/agent/trigger-call`, payload);
+  api.post(`/call-agent/trigger-call`, payload);
 
 export const getCallHistory = (payload: any) =>
-  api.post(`/agent/getCallHistory`, payload);
+  api.post(`/call-agent/getCallHistory`, payload);
 
 export const getCallStats = (payload: any) =>
-  api.post(`/agent/getCallStats`, payload);
+  api.post(`/call-agent/getCallStats`, payload);
+
+// chat agent
+export const messageChatAgent = (payload: any) =>
+  api.post(`/chat-agent/sendMessage`, payload);
+
+export const getConversationHistory = (payload: any) =>
+  api.post(`/chat-agent/getConversationHistory`, payload);
+
+// human agents
+export const createAgent = (payload: FormData) =>
+  api.post(`/human-agent/createAgent`, payload, {
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+  });
+
+export const updateAgent = (payload: FormData) =>
+  api.post(`/human-agent/updateAgent`, payload, {
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+  });
+
+export const getAgents = (payload: any) =>
+  api.post(`/human-agent/getAgents`, payload);
+
+export const getAgentById = (id: string, payload: any) =>
+  api.post(`/human-agent/getAgentById/${id}`, payload);
+
+export const deleteAgent = (id: string, payload: any) =>
+  api.post(`/human-agent/deleteAgent/${id}`, payload);
+
+export const agentLogin = (payload: any) =>
+  api.post(`/human-agent/agentLogin`, payload);
+
+export const getMyAgentProfile = (payload: any) =>
+  api.post(`/human-agent/getMyAgentProfile`, payload);

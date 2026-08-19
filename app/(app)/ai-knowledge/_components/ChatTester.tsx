@@ -25,13 +25,11 @@ export function ChatTester() {
   const [input, setInput] = useState("");
   const [isSending, setIsSending] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const bottomRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    scrollRef.current?.scrollTo({
-      top: scrollRef.current.scrollHeight,
-      behavior: "smooth",
-    });
-  }, [messages]);
+    bottomRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
+  }, [messages, isSending]);
 
   const handleSend = async () => {
     const question = input.trim();
@@ -64,7 +62,7 @@ export function ChatTester() {
   };
 
   return (
-    <Card className="flex flex-col h-[560px]">
+    <Card className="flex flex-col h-125">
       <CardHeader>
         <CardTitle className="flex items-center gap-2 text-base">
           <MessageSquareText className="h-4 w-4" />
@@ -99,24 +97,10 @@ export function ChatTester() {
               >
                 <div
                   className={cn(
-                    "flex h-7 w-7 shrink-0 items-center justify-center rounded-full",
-                    msg.role === "user"
-                      ? "bg-primary text-primary-foreground"
-                      : "bg-muted",
-                  )}
-                >
-                  {msg.role === "user" ? (
-                    <User className="h-4 w-4" />
-                  ) : (
-                    <Bot className="h-4 w-4" />
-                  )}
-                </div>
-                <div
-                  className={cn(
                     "rounded-2xl px-3 py-2 text-sm",
                     msg.role === "user"
-                      ? "bg-primary text-primary-foreground rounded-tr-sm"
-                      : "bg-muted rounded-tl-sm",
+                      ? "bg-primary text-primary-foreground rounded-lg"
+                      : "bg-muted rounded-lg",
                   )}
                 >
                   {msg.content}
@@ -128,6 +112,7 @@ export function ChatTester() {
                 <Loader2 className="h-3 w-3 animate-spin" /> Thinking...
               </div>
             )}
+            <div ref={bottomRef} />
           </div>
         </ScrollArea>
 

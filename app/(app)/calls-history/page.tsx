@@ -11,23 +11,40 @@ import { CallStatsCards } from "./_components/CallStatsCards";
 import { Button } from "@/components/ui/button";
 import { Wallet } from "lucide-react";
 import { BuyCallsDialog } from "./_components/BuyCallsDialog";
+import { PaginationComponent } from "@/app/(shared)/components/Pagination";
 
 export default function CallsHistory() {
   const [calls, setCalls] = useState<CallHistoryItem[]>([]);
   const [stats, setStats] = useState<any>(null);
   const [creditsDialogOpen, setCreditsDialogOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
 
-  const fetchCallHistory = async () => {
+  const [pagination, setPagination] = useState({
+    page: 1,
+    limit: 10,
+    totalPages: 1,
+    total: 0,
+  });
+
+  const fetchCallHistory = async (page = 1) => {
+    setLoading(true);
     try {
-      const res = await getCallHistory({});
+      const payload = {
+        page,
+        limit: pagination.limit,
+      };
+      const res = await getCallHistory(payload);
       if (res.data.status) {
-        setCalls(res.data.response);
+        setCalls(res.data?.response);
+        setPagination(res.data?.pagination);
       }
     } catch (error: any) {
       console.log(error);
       toast.error(
         error?.response?.data?.message || "Failed to load call history",
       );
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -46,7 +63,7 @@ export default function CallsHistory() {
   };
 
   useEffect(() => {
-    fetchCallHistory();
+    fetchCallHistory(1);
     fetchCallStats();
   }, []);
 
@@ -71,7 +88,19 @@ export default function CallsHistory() {
         creditsUsed={stats?.usedCredits ?? 0}
       />
 
-      <CallHistoryTable calls={calls} />
+      <CallHistoryTable
+        calls={calls}
+        page={pagination.page}
+        limit={pagination.limit}
+        loading={loading}
+      />
+      <PaginationComponent
+        page={pagination.page}
+        totalPages={pagination.totalPages}
+        onPageChange={(newPage) => {
+          fetchCallHistory(newPage);
+        }}
+      />
 
       <BuyCallsDialog
         open={creditsDialogOpen}

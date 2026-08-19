@@ -1,185 +1,209 @@
 "use client";
 
-import { useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { Badge } from "@/components/ui/badge";
 import {
-  Edit,
-  Trash2,
-  UserCheck,
-  Mail,
-  Phone,
-  MoreVertical,
-  Play,
-  Pause,
-} from "lucide-react";
-import AgentForm from "./AgentForm";
+  Table,
+  TableHeader,
+  TableBody,
+  TableRow,
+  TableHead,
+  TableCell,
+} from "@/components/ui/table";
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+} from "@/components/ui/dropdown-menu";
+import { Plus, MoreVertical, UserRound, Eye, Edit, Ban } from "lucide-react";
+import { getAgents, deleteAgent } from "@/services/services";
+import Loading from "@/components/shared/loading";
+import { Card, CardContent } from "@/components/ui/card";
 
-interface Agent {
-  id: string;
+type Agent = {
+  _id: string;
   name: string;
   email: string;
-  phone: string;
-  role: string;
-  status: "Active" | "Inactive";
-  joinDate: string;
-}
+  phone?: string;
+  image?: string;
+  status: "active" | "invited" | "disabled";
+  last_login?: string;
+};
 
-const initialAgents: Agent[] = [
-  {
-    id: "1",
-    name: "Alice Johnson",
-    email: "alice@example.com",
-    phone: "+1 (555) 111-2222",
-    role: "Sales Agent",
-    status: "Active",
-    joinDate: "2025-06-15",
-  },
-  {
-    id: "2",
-    name: "Bob Smith",
-    email: "bob@example.com",
-    phone: "+1 (555) 333-4444",
-    role: "Support Agent",
-    status: "Active",
-    joinDate: "2025-08-20",
-  },
-  {
-    id: "3",
-    name: "Carol Davis",
-    email: "carol@example.com",
-    phone: "+1 (555) 555-6666",
-    role: "Sales Agent",
-    status: "Inactive",
-    joinDate: "2025-03-10",
-  },
-];
-
-const roles = ["Sales Agent", "Support Agent", "Manager", "Lead Generator"];
+const STATUS_STYLES: Record<Agent["status"], string> = {
+  active: "bg-green-100 text-green-700 hover:bg-green-100",
+  invited: "bg-amber-100 text-amber-700 hover:bg-amber-100",
+  disabled: "bg-gray-100 text-gray-500 hover:bg-gray-100",
+};
 
 export default function AgentsPage() {
-  const [agents, setAgents] = useState<Agent[]>(initialAgents);
-  const [isOpen, setIsOpen] = useState(false);
+  const router = useRouter();
+  const [agents, setAgents] = useState<Agent[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  const user = JSON.parse(localStorage.getItem("user") || "{}");
+  const businessId = user?.business;
+
+  const fetchAgents = async () => {
+    setLoading(true);
+    try {
+      const res = await getAgents({ businessId });
+      if (res.data?.status) {
+        setAgents(res.data.response || []);
+      }
+    } catch (error: any) {
+      toast.error(
+        error?.response?.data?.message ||
+          error?.message ||
+          "Couldn't load agents",
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDisable = async (agent: Agent) => {
+    try {
+      const res = await deleteAgent(agent._id, {});
+      if (res.data?.status) {
+        toast.success("Agent disabled");
+        setAgents((prev) =>
+          prev.map((a) =>
+            a._id === agent._id ? { ...a, status: "disabled" } : a,
+          ),
+        );
+      }
+    } catch (error: any) {
+      toast.error(
+        error?.response?.data?.message ||
+          error?.message ||
+          "Couldn't disable agent",
+      );
+    }
+  };
+
+  useEffect(() => {
+    if (businessId) fetchAgents();
+  }, [businessId]);
 
   return (
-    <>
-      <div className="space-y-6">
-        <div className="flex items-center justify-between">
-          <h1 className="text-2xl font-semibold">Agents</h1>
-          <Button size={"sm"} onClick={() => setIsOpen(true)}>
-            Add Agent
-          </Button>
-        </div>
-
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <UserCheck className="w-5 h-5" />
-              Team Members ({agents.length})
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="overflow-x-auto">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Name</TableHead>
-                    <TableHead>Contact</TableHead>
-                    <TableHead>Role</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Join Date</TableHead>
-                    <TableHead className="text-right">Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {agents.map((agent) => (
-                    <TableRow key={agent.id}>
-                      <TableCell className="font-medium">
-                        {agent.name}
-                      </TableCell>
-                      <TableCell>
-                        <div className="space-y-1">
-                          <div className="flex items-center gap-1 text-sm">
-                            <Mail className="w-3 h-3" />
-                            {agent.email}
-                          </div>
-                          <div className="flex items-center gap-1 text-sm text-muted-foreground">
-                            <Phone className="w-3 h-3" />
-                            {agent.phone}
-                          </div>
-                        </div>
-                      </TableCell>
-                      <TableCell>{agent.role}</TableCell>
-                      <TableCell>
-                        <Badge
-                          variant={
-                            agent.status === "Active" ? "default" : "secondary"
-                          }
-                        >
-                          {agent.status}
-                        </Badge>
-                      </TableCell>
-                      <TableCell>
-                        {new Date(agent.joinDate).toLocaleDateString()}
-                      </TableCell>
-                      <TableCell className="text-right">
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="icon">
-                              <MoreVertical className="w-4 h-4" />
-                            </Button>
-                          </DropdownMenuTrigger>
-
-                          <DropdownMenuContent align="end" className="w-40">
-                            <DropdownMenuItem>
-                              <Edit className="mr-2 h-4 w-4" />
-                              Edit
-                            </DropdownMenuItem>
-
-                            <DropdownMenuItem>
-                              {agent.status === "Active" ? (
-                                <Pause className="mr-2 h-4 w-4" />
-                              ) : (
-                                <Play className="mr-2 h-4 w-4" />
-                              )}
-                              {agent.status === "Active"
-                                ? "Deactivate"
-                                : "Activate"}
-                            </DropdownMenuItem>
-
-                            <DropdownMenuItem className="text-red-600 focus:text-red-600">
-                              <Trash2 className="mr-2 h-4 w-4" />
-                              Delete
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </div>
-          </CardContent>
-        </Card>
+    <div>
+      <div className="flex items-center justify-between mb-4">
+        <h1 className="text-2xl font-semibold">Agents</h1>
+        <Button size="sm" onClick={() => router.push("/agents/create")}>
+          <Plus className="h-4 w-4" />
+          Add Agent
+        </Button>
       </div>
 
-      <AgentForm isOpen={isOpen} onClose={() => setIsOpen(false)} />
-    </>
+      {loading ? (
+        <Loading />
+      ) : agents.length === 0 ? (
+        <div className="flex flex-col items-center justify-center rounded-lg border border-dashed py-16 text-center bg-white">
+          <UserRound className="mb-3 h-8 w-8 text-muted-foreground" />
+          <p className="text-sm text-muted-foreground">
+            No agents yet. Add your first team member to get started.
+          </p>
+        </div>
+      ) : (
+        <Card>
+          <CardContent>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Agent</TableHead>
+                  <TableHead>Email</TableHead>
+                  <TableHead>Phone</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead className="w-10">Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {agents.map((agent) => (
+                  <TableRow
+                    key={agent._id}
+                    className="cursor-pointer"
+                    onClick={() => router.push(`/agents/${agent._id}`)}
+                  >
+                    <TableCell>
+                      <div className="flex items-center gap-3">
+                        <div className="flex h-8 w-8 items-center justify-center overflow-hidden rounded-full bg-muted text-xs font-medium text-muted-foreground">
+                          {agent.image ? (
+                            <img
+                              src={agent.image}
+                              alt={agent.name}
+                              className="h-full w-full object-cover"
+                            />
+                          ) : (
+                            agent.name
+                              ?.split(" ")
+                              .map((w) => w[0])
+                              .join("")
+                              .slice(0, 2)
+                              .toUpperCase()
+                          )}
+                        </div>
+                        <span className="font-medium">{agent.name}</span>
+                      </div>
+                    </TableCell>
+                    <TableCell className="text-muted-foreground">
+                      {agent.email}
+                    </TableCell>
+                    <TableCell className="text-muted-foreground">
+                      {agent.phone || "—"}
+                    </TableCell>
+                    <TableCell>
+                      <Badge
+                        className={`capitalize ${STATUS_STYLES[agent.status]}`}
+                      >
+                        {agent.status}
+                      </Badge>
+                    </TableCell>
+                    <TableCell onClick={(e) => e.stopPropagation()}>
+                      <div className="flex items-center gap-4">
+                        <Button
+                          onClick={() => router.push(`/agents/${agent._id}`)}
+                          size={"icon-sm"}
+                          variant={"secondary"}
+                          title="View"
+                        >
+                          <Eye className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          onClick={() =>
+                            router.push(`/agents/edit/${agent._id}`)
+                          }
+                          size={"icon-sm"}
+                          variant={"secondary"}
+                          title="Edit"
+                          className="hover:bg-blue-50"
+                        >
+                          <Edit className="h-5 w-5 text-blue-500" />
+                        </Button>
+                        {agent.status !== "disabled" && (
+                          <Button
+                            className="text-red-600 hover:bg-red-50"
+                            onClick={() => handleDisable(agent)}
+                            size={"icon-sm"}
+                            variant={"secondary"}
+                            title="Disable"
+                          >
+                            <Ban className="h-4 w-4" />
+                          </Button>
+                        )}
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </CardContent>
+        </Card>
+      )}
+    </div>
   );
 }

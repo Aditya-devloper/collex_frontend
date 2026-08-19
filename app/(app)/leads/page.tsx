@@ -24,16 +24,7 @@ import { useEffect, useState } from "react";
 import { deleteLead, exportLeads, getLeads } from "@/services/services";
 import Loading from "@/components/shared/loading";
 import moment from "moment";
-import {
-  Edit,
-  Eye,
-  Filter,
-  X,
-  CalendarIcon,
-  Download,
-  Trash2,
-  Inbox,
-} from "lucide-react";
+import { Edit, Eye, Filter, X, Download, Trash2, Inbox } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -46,6 +37,7 @@ import { DatePicker } from "@/app/(shared)/components/DatePicker";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { DeleteConfirm } from "@/app/(shared)/components/DeleteConfirm";
+import { PaginationComponent } from "@/app/(shared)/components/Pagination";
 
 const statusColors: Record<string, string> = {
   new: "bg-blue-100 text-blue-700",
@@ -64,6 +56,12 @@ export default function LeadsPage() {
   const [isDeleting, setIsDeleting] = useState(false);
   const [deletedId, setDeletedId] = useState<null | string>(null);
   const [btnDisable, setBtnDisable] = useState(false);
+  const [pagination, setPagination] = useState({
+    page: 1,
+    limit: 10,
+    totalPages: 1,
+    total: 0,
+  });
 
   const [filters, setFilters] = useState({
     status: "",
@@ -86,11 +84,15 @@ export default function LeadsPage() {
 
   const router = useRouter();
 
-  const fetchLeads = async (customFilters = filters, customSearch = search) => {
+  const fetchLeads = async (
+    customFilters = filters,
+    customSearch = search,
+    page = 1,
+  ) => {
     setLoading(true);
 
     try {
-      const payload: any = {};
+      const payload: any = { page, limit: pagination.limit };
       if (customSearch) payload.search = customSearch;
       if (customFilters.status) payload.status = customFilters.status;
       if (customFilters.source) payload.source = customFilters.source;
@@ -103,6 +105,7 @@ export default function LeadsPage() {
       const res = await getLeads(payload);
       if (res.data.status) {
         setLeads(res.data.response);
+        setPagination(res.data?.pagination);
       }
     } catch (error: any) {
       console.log(error);
@@ -119,7 +122,7 @@ export default function LeadsPage() {
       const value = search.trim();
 
       if (value.length >= 2) {
-        fetchLeads();
+        fetchLeads(appliedFilters, value, 1);
       }
     }, 500);
 
@@ -140,7 +143,7 @@ export default function LeadsPage() {
     setSearch("");
     setFilterOpen(false);
 
-    await fetchLeads(resetFilters, "");
+    await fetchLeads(resetFilters, "", 1);
   };
 
   const activeFiltersCount = [
@@ -221,6 +224,10 @@ export default function LeadsPage() {
     } finally {
       setBtnDisable(false);
     }
+  };
+
+  const handlePageChange = (page: number) => {
+    fetchLeads(appliedFilters, search, page);
   };
 
   return (
@@ -418,7 +425,7 @@ export default function LeadsPage() {
                         size={"sm"}
                         onClick={() => {
                           setAppliedFilters(filters);
-                          fetchLeads();
+                          fetchLeads(filters, search, 1);
                           setFilterOpen(false);
                         }}
                       >
@@ -450,6 +457,7 @@ export default function LeadsPage() {
               <Table>
                 <TableHeader>
                   <TableRow>
+                    <TableHead>Sr. No</TableHead>
                     <TableHead>Name</TableHead>
                     <TableHead>Phone</TableHead>
                     <TableHead>Email</TableHead>
@@ -477,12 +485,16 @@ export default function LeadsPage() {
                     </TableRow>
                   ) : (
                     <>
-                      {leads.map((lead: any) => (
+                      {leads.map((lead: any, idx: number) => (
                         <TableRow
                           key={lead._id}
                           onClick={() => router.push(`/leads/${lead._id}`)}
                           className="cursor-pointer hover:bg-muted"
                         >
+                          <TableCell>
+                            {(pagination.page - 1) * pagination.limit + idx + 1}
+                            .
+                          </TableCell>
                           <TableCell>{lead.name}</TableCell>
 
                           <TableCell>{lead.phone || "-"}</TableCell>
@@ -549,6 +561,16 @@ export default function LeadsPage() {
               </Table>
             </CardContent>
           </Card>
+
+          {pagination.totalPages > 1 && (
+            <div className="mt-6">
+              <PaginationComponent
+                page={pagination.page}
+                totalPages={pagination.totalPages}
+                onPageChange={handlePageChange}
+              />
+            </div>
+          )}
         </div>
       )}
 

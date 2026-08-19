@@ -21,6 +21,7 @@ import { Label } from "@/components/ui/label";
 import { getUserById, updateUser } from "@/services/services";
 import Loading from "@/components/shared/loading";
 import { toast } from "sonner";
+import PhoneInput from "react-phone-input-2";
 
 export default function ProfilePage() {
   const [user, setUser] = useState<any>(null);
@@ -36,13 +37,6 @@ export default function ProfilePage() {
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [existingImage, setExistingImage] = useState<string>("");
-
-  useEffect(() => {
-    if (sessionStorage.getItem("reload-on-back")) {
-      sessionStorage.removeItem("reload-on-back");
-      window.location.reload();
-    }
-  }, []);
 
   const fetchUser = async () => {
     try {
@@ -98,7 +92,6 @@ export default function ProfilePage() {
     }
   };
 
-  // Helper function to get status badge
   const getStatusBadge = (status: string) => {
     if (status === "active") {
       return (
@@ -158,7 +151,10 @@ export default function ProfilePage() {
       const submitFormData = new FormData();
       submitFormData.append("name", formData.name);
       submitFormData.append("email", formData.email);
-      submitFormData.append("phone", formData.phone);
+      submitFormData.append(
+        "phone",
+        formData.phone ? `+${formData.phone.replace(/^\+/, "")}` : "",
+      );
 
       if (imageFile) {
         submitFormData.append("image", imageFile);
@@ -169,7 +165,6 @@ export default function ProfilePage() {
       const res = await updateUser(user?._id, submitFormData);
       if (res.data.status) {
         toast.success(res.data.message || "Profile updated successfully");
-        // Refresh user data
         await fetchUser();
         setIsEditMode(false);
         setImageFile(null);
@@ -194,13 +189,11 @@ export default function ProfilePage() {
 
   const cancelEdit = () => {
     setIsEditMode(false);
-    // Reset form data to original user data
     setFormData({
       name: user?.name || "",
       email: user?.email || "",
       phone: user?.phone || "",
     });
-    // Reset image preview to existing image
     if (user?.image) {
       const imageUrl = user.image;
       setImagePreview(imageUrl);
@@ -395,11 +388,15 @@ export default function ProfilePage() {
                       Phone Number
                     </Label>
                     {isEditMode ? (
-                      <Input
-                        type="tel"
+                      <PhoneInput
+                        country="in"
                         value={formData.phone}
-                        onChange={(e) => handleChange("phone", e.target.value)}
-                        placeholder="Enter your phone number"
+                        countryCodeEditable={false}
+                        enableSearch
+                        onChange={(phone) => handleChange("phone", phone)}
+                        containerClass="!w-full"
+                        inputClass="!w-full !h-9 !rounded-md !border !border-input !bg-white !py-1 !pr-3 !pl-[50px] !text-sm !shadow-xs"
+                        buttonClass="!h-9 !rounded-l-md !border-input !bg-white"
                       />
                     ) : (
                       <div className="flex items-center gap-2 rounded-lg bg-muted/50 p-2">

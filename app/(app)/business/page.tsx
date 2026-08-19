@@ -29,6 +29,7 @@ import { businessTypes } from "@/data";
 import moment from "moment";
 import { useRouter } from "next/navigation";
 import { Badge } from "@/components/ui/badge";
+import PhoneInput from "react-phone-input-2";
 
 export default function Business() {
   const router = useRouter();
@@ -75,7 +76,7 @@ export default function Business() {
         business_type: formData.business_type,
         address: formData.address,
         business_email: formData.business_email,
-        business_phone: formData.business_phone,
+        business_phone: `+${formData.business_phone.replace(/^\+/, "")}`,
       };
       const res = await updateBusiness(payload);
       if (res.data.status) {
@@ -111,6 +112,13 @@ export default function Business() {
 
   useEffect(() => {
     fetchBusiness();
+  }, []);
+
+  useEffect(() => {
+    if (sessionStorage.getItem("reload-on-back")) {
+      sessionStorage.removeItem("reload-on-back");
+      window.location.reload();
+    }
   }, []);
 
   return (
@@ -255,13 +263,17 @@ export default function Business() {
                       Business Phone
                     </Label>
                     {isEditMode ? (
-                      <Input
-                        type="tel"
+                      <PhoneInput
+                        country="in"
                         value={formData.business_phone}
-                        onChange={(e) =>
-                          handleChange("business_phone", e.target.value)
+                        countryCodeEditable={false}
+                        enableSearch
+                        onChange={(phone) =>
+                          handleChange("business_phone", phone)
                         }
-                        placeholder="Enter business phone"
+                        containerClass="!w-full"
+                        inputClass="!w-full !h-9 !rounded-md !border !border-input !bg-white !py-1 !pr-3 !pl-[50px] !text-sm !shadow-xs"
+                        buttonClass="!h-9 !rounded-l-md !border-input !bg-white"
                       />
                     ) : (
                       <div className="flex items-center gap-2 rounded-lg bg-muted/50 p-2">
@@ -300,112 +312,114 @@ export default function Business() {
             </Card>
 
             {/* Plan Card */}
-            <Card>
-              <CardHeader className="flex items-center justify-between">
-                <CardTitle className="flex items-center gap-2 text-lg">
-                  <Shield className="h-5 w-5" />
-                  Current Plan
-                </CardTitle>
-                <div className="flex gap-2 pt-1">
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={() => router.push("/transactions")}
-                    className="flex-1"
-                  >
-                    History
-                  </Button>
-                  <Button
-                    size="sm"
-                    onClick={
-                      () => (window.location.href = "/")
-                      // router.push(
-                      //   `/billing?plan=pro&billing=${business?.plan.billing_cycle}&currency=INR`,
-                      // )
-                    }
-                    className="flex-1"
-                  >
-                    Upgrade
-                  </Button>
-                </div>
-              </CardHeader>
-              <CardContent>
-                {business?.plan ? (
-                  <div className="space-y-4">
-                    {/* Plan name + status */}
-                    <div className="grid grid-cols-2 gap-3">
-                      <div className="rounded-lg bg-muted/50 p-3">
-                        <p className="flex justify-between text-xs text-muted-foreground">
-                          Plan
-                          <Badge
-                            className={
-                              business?.plan.is_active
-                                ? "bg-green-100 text-green-700 border-green-200"
-                                : "bg-red-100 text-red-700 border-red-200"
-                            }
-                          >
-                            {business?.plan.is_active ? "Active" : "Expired"}
-                          </Badge>
-                        </p>
-                        <p className="text-sm font-medium capitalize">
-                          {business?.plan.name}
-                        </p>
-                      </div>
-                      <div className="rounded-lg bg-muted/50 p-3">
-                        <p className="text-xs text-muted-foreground mb-1">
-                          Billing
-                        </p>
-                        <p className="text-sm font-medium capitalize">
-                          {business?.plan.billing_cycle || "-"}
-                        </p>
-                      </div>
-                    </div>
-
-                    {/* Dates */}
-                    <div className="grid grid-cols-2 gap-3">
-                      <div className="rounded-lg bg-muted/50 p-3">
-                        <p className="text-xs text-muted-foreground mb-1">
-                          Start Date
-                        </p>
-                        <p className="text-sm font-medium">
-                          {moment(business?.plan.start_date).format(
-                            "DD MMM, YYYY",
-                          )}
-                        </p>
-                      </div>
-                      <div className="rounded-lg bg-muted/50 p-3">
-                        <p className="text-xs text-muted-foreground mb-1">
-                          Expires On
-                        </p>
-                        <p className="text-sm font-medium">
-                          {moment(business?.plan.end_date).format(
-                            "DD MMM, YYYY",
-                          )}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                ) : (
-                  /* No plan state */
-                  <div className="flex flex-col items-center gap-3 py-4 text-center">
-                    <p className="text-sm text-muted-foreground">
-                      You're on the free trial. Upgrade to keep access after 14
-                      days.
-                    </p>
+            {!isEditMode && (
+              <Card>
+                <CardHeader className="flex items-center justify-between">
+                  <CardTitle className="flex items-center gap-2 text-lg">
+                    <Shield className="h-5 w-5" />
+                    Current Plan
+                  </CardTitle>
+                  <div className="flex gap-2 pt-1">
                     <Button
                       size="sm"
-                      onClick={() =>
-                        router.push(
-                          "/billing?plan=pro&billing=monthly&currency=INR",
-                        )
-                      }
+                      variant="outline"
+                      onClick={() => router.push("/transactions")}
+                      className="flex-1"
                     >
-                      Upgrade to Pro
+                      History
+                    </Button>
+                    <Button
+                      size="sm"
+                      onClick={
+                        () => (window.location.href = "/")
+                        // router.push(
+                        //   `/billing?plan=pro&billing=${business?.plan.billing_cycle}&currency=INR`,
+                        // )
+                      }
+                      className="flex-1"
+                    >
+                      Upgrade
                     </Button>
                   </div>
-                )}
-              </CardContent>
-            </Card>
+                </CardHeader>
+                <CardContent>
+                  {business?.plan ? (
+                    <div className="space-y-4">
+                      {/* Plan name + status */}
+                      <div className="grid grid-cols-2 gap-3">
+                        <div className="rounded-lg bg-muted/50 p-3">
+                          <p className="flex justify-between text-xs text-muted-foreground">
+                            Plan
+                            <Badge
+                              className={
+                                business?.plan.is_active
+                                  ? "bg-green-100 text-green-700 border-green-200"
+                                  : "bg-red-100 text-red-700 border-red-200"
+                              }
+                            >
+                              {business?.plan.is_active ? "Active" : "Expired"}
+                            </Badge>
+                          </p>
+                          <p className="text-sm font-medium capitalize">
+                            {business?.plan.name}
+                          </p>
+                        </div>
+                        <div className="rounded-lg bg-muted/50 p-3">
+                          <p className="text-xs text-muted-foreground mb-1">
+                            Billing
+                          </p>
+                          <p className="text-sm font-medium capitalize">
+                            {business?.plan.billing_cycle || "-"}
+                          </p>
+                        </div>
+                      </div>
+
+                      {/* Dates */}
+                      <div className="grid grid-cols-2 gap-3">
+                        <div className="rounded-lg bg-muted/50 p-3">
+                          <p className="text-xs text-muted-foreground mb-1">
+                            Start Date
+                          </p>
+                          <p className="text-sm font-medium">
+                            {moment(business?.plan.start_date).format(
+                              "DD MMM, YYYY",
+                            )}
+                          </p>
+                        </div>
+                        <div className="rounded-lg bg-muted/50 p-3">
+                          <p className="text-xs text-muted-foreground mb-1">
+                            Expires On
+                          </p>
+                          <p className="text-sm font-medium">
+                            {moment(business?.plan.end_date).format(
+                              "DD MMM, YYYY",
+                            )}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  ) : (
+                    /* No plan state */
+                    <div className="flex flex-col items-center gap-3 py-4 text-center">
+                      <p className="text-sm text-muted-foreground">
+                        You're on the free trial. Upgrade to keep access after
+                        14 days.
+                      </p>
+                      <Button
+                        size="sm"
+                        onClick={() =>
+                          router.push(
+                            "/billing?plan=pro&billing=monthly&currency=INR",
+                          )
+                        }
+                      >
+                        Upgrade to Pro
+                      </Button>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            )}
           </div>
         </div>
       )}

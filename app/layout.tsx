@@ -4,6 +4,7 @@ import { Toaster } from "sonner";
 import Providers from "./providers";
 import "./globals.css";
 import StructuredData from "@/components/home/StructuredData";
+import "react-phone-input-2/lib/style.css";
 
 const spaceGrotesk = Space_Grotesk({
   subsets: ["latin"],

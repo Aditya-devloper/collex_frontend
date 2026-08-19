@@ -30,12 +30,6 @@ import {
   UserX,
   Edit,
   Briefcase,
-  Facebook,
-  Instagram,
-  Globe,
-  Radio,
-  Share2,
-  HelpCircle,
   ArrowLeft,
   Bot,
 } from "lucide-react";
@@ -184,7 +178,7 @@ const formatMetadata = (metadata: any, activityType: string) => {
             <span className="font-medium">{metadata.preferredDay}</span>
           </>
         )}
-        {metadata.attemptNumber && <> · Attempt #{metadata.attemptNumber}</>}
+        {metadata.attemptNumber && <> Attempt #{metadata.attemptNumber}</>}
       </span>
     );
   }
@@ -274,7 +268,7 @@ const LeadDetail = () => {
     return (
       <div className="flex min-h-100 items-center justify-center">
         <div className="text-center">
-          <AlertCircle className="mx-auto h-12 w-12 text-muted-foreground" />
+          <AlertCircle className="mx-auto h-12 w-12 text-red-500" />
           <h3 className="mt-4 text-lg font-semibold">Lead not found</h3>
           <p className="text-muted-foreground">
             The lead you're looking for doesn't exist or has been deleted.
