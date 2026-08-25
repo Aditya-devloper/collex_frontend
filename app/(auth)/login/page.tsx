@@ -12,11 +12,27 @@ import { GoogleLogin } from "@react-oauth/google";
 import { ArrowRight, Lock, Mail } from "lucide-react";
 import Image from "next/image";
 
+type LoginMethod = "email" | "google";
+
+// One key, read on mount to show a hint + highlight; written right before
+// each redirect on success. Kept as a tiny helper so both handlers agree
+// on the storage key instead of duplicating the string everywhere.
+const LAST_METHOD_KEY = "lastLoginMethod";
+const rememberMethod = (method: LoginMethod) =>
+  localStorage.setItem(LAST_METHOD_KEY, method);
+
 export default function LoginPage() {
+  const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [lastMethod, setLastMethod] = useState<LoginMethod | null>(null);
   const router = useRouter();
+
+  useEffect(() => {
+    const stored = localStorage.getItem(LAST_METHOD_KEY);
+    if (stored === "email" || stored === "google") setLastMethod(stored);
+  }, []);
 
   const handleEmailLogin = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -25,10 +41,11 @@ export default function LoginPage() {
 
     try {
       setLoading(true);
-      const res = await createAccount({ email, password });
+      const res = await createAccount({ name, email, password });
       if (res.data.status) {
         toast.success(res.data.message);
         localStorage.setItem("token", res.data.response?.token);
+        rememberMethod("email");
 
         if (res.data.response.hasBusiness) {
           localStorage.setItem("user", JSON.stringify(res.data.response?.user));
@@ -59,6 +76,7 @@ export default function LoginPage() {
       if (res.data.status) {
         toast.success(res.data.message);
         localStorage.setItem("token", res.data.response?.token);
+        rememberMethod("google");
 
         if (res.data.response.hasBusiness) {
           localStorage.setItem("user", JSON.stringify(res.data.response?.user));
@@ -78,7 +96,7 @@ export default function LoginPage() {
   };
 
   return (
-    <Card className="w-full max-w-sm relative overflow-hidden">
+    <Card className="w-full max-w-md relative overflow-hidden">
       {/* Decorative glow, purely cosmetic */}
       <div
         className="absolute -top-16 -right-16 w-48 h-48 rounded-full opacity-25 blur-3xl pointer-events-none"
@@ -98,10 +116,23 @@ export default function LoginPage() {
         <h2 className="text-lg font-display font-semibold text-[var(--color-text-primary)]">
           Sign in to your account
         </h2>
+        {lastMethod && (
+          <p className="text-xs text-[var(--color-text-muted)]">
+            You last signed in with{" "}
+            {lastMethod === "google" ? "Google" : "email & password"}
+          </p>
+        )}
       </CardHeader>
 
       <CardContent className="relative">
-        <form onSubmit={handleEmailLogin} className="space-y-4">
+        <form
+          onSubmit={handleEmailLogin}
+          className={`space-y-4 rounded-xl transition-all ${
+            lastMethod === "email"
+              ? "ring-1 ring-[var(--color-coral)]/40 p-3 -m-3"
+              : ""
+          }`}
+        >
           <div>
             <Label>Email</Label>
             <div className="relative">
@@ -157,7 +188,13 @@ export default function LoginPage() {
           <div className="flex-grow h-px bg-white/10" />
         </div>
 
-        <div className="flex justify-center [&>div]:w-full">
+        <div
+          className={`flex justify-center [&>div]:w-full rounded-xl transition-all ${
+            lastMethod === "google"
+              ? "ring-1 ring-[var(--color-coral)]/40 p-2 -m-2"
+              : ""
+          }`}
+        >
           <GoogleLogin
             onSuccess={async (credentialResponse) => {
               await handleGoogleLogin(credentialResponse);

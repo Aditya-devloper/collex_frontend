@@ -2,28 +2,24 @@
 
 import { useSearchParams, useRouter } from "next/navigation";
 import { useEffect, useState, Suspense } from "react";
-import { Check, ShieldCheck, ArrowLeft, Zap } from "lucide-react";
-import {
-  RZP_TEST_KEY_ID,
-  PREMIUM_PLAN_PRICE_INR_MONTHLY,
-  PREMIUM_PLAN_PRICE_INR_YEARLY,
-  PREMIUM_PLAN_PRICE_USD_MONTHLY,
-  PREMIUM_PLAN_PRICE_USD_YEARLY,
-} from "@/constants";
+import { ShieldCheck, ArrowLeft } from "lucide-react";
+import { RZP_TEST_KEY_ID } from "@/constants";
 import {
   confirmSubscription,
   createSubscriptionOrder,
+  getPlans,
 } from "@/services/services";
 import { toast } from "sonner";
 
-const included = [
-  "Unlimited leads",
-  "Follow-up reminders",
-  "CSV import & export",
-  "Lead activity history",
-  "Notes on every lead",
-  "Dashboard & insights",
-];
+type Plan = {
+  _id: string;
+  name: string;
+  display_name: string;
+  price: number;
+  currency: string;
+  billing_cycle: "monthly" | "yearly";
+  is_active: boolean;
+};
 
 declare global {
   interface Window {
@@ -34,30 +30,49 @@ declare global {
 function BillingContent() {
   const router = useRouter();
   const params = useSearchParams();
+  const planName = params.get("plan");
 
-  const billing = (params.get("billing") as "monthly" | "yearly") ?? "monthly";
-  const currency = (params.get("currency") as "INR" | "USD") ?? "INR";
-
+  const [plan, setPlan] = useState<Plan | null>(null);
+  const [fetchingPlan, setFetchingPlan] = useState(true);
   const [loading, setLoading] = useState(false);
   const [rzpReady, setRzpReady] = useState(false);
 
   const user = JSON.parse(localStorage.getItem("user") || "{}");
 
-  // Price resolution from env vars
-  const priceMap = {
-    INR: {
-      monthly: PREMIUM_PLAN_PRICE_INR_MONTHLY ?? "599",
-      yearly: PREMIUM_PLAN_PRICE_INR_YEARLY ?? "4999",
-    },
-    USD: {
-      monthly: PREMIUM_PLAN_PRICE_USD_MONTHLY ?? "25",
-      yearly: PREMIUM_PLAN_PRICE_USD_YEARLY ?? "250",
-    },
-  };
+  useEffect(() => {
+    if (!planName) {
+      router.replace("/#pricing");
+      return;
+    }
+    const fetchPlan = async () => {
+      try {
+        const res = await getPlans({});
+        if (res.data?.status) {
+          const match = (res.data.response || []).find(
+            (p: Plan) => p.name === planName && p.is_active,
+          );
+          if (match) {
+            setPlan(match);
+          } else {
+            toast.error("That plan isn't available anymore");
+            router.replace("/#pricing");
+          }
+        }
+      } catch (error: any) {
+        toast.error(
+          error?.response?.data?.message ||
+            error?.message ||
+            "Couldn't load plan details",
+        );
+      } finally {
+        setFetchingPlan(false);
+      }
+    };
+    fetchPlan();
+  }, [planName]);
 
-  const displayPrice = priceMap[currency][billing];
-  const symbol = currency === "INR" ? "₹" : "$";
-  const isYearly = billing === "yearly";
+  const symbol = plan?.currency === "USD" ? "$" : "₹";
+  const isYearly = plan?.billing_cycle === "yearly";
 
   // Load Razorpay SDK dynamically — this replaces the <script> tag in index.html
   useEffect(() => {
@@ -72,17 +87,20 @@ function BillingContent() {
     script.onerror = () => console.error("Razorpay SDK failed to load");
     document.body.appendChild(script);
     return () => {
-      // cleanup only if we added it
       if (document.body.contains(script)) document.body.removeChild(script);
     };
   }, []);
 
   const handlePayment = async () => {
-    if (!rzpReady) return;
+    if (!rzpReady || !plan) return;
     setLoading(true);
 
     try {
-      const payload = { currency, billing_cycle: billing };
+      const payload = {
+        plan: plan.name,
+        currency: plan.currency,
+        billing_cycle: plan.billing_cycle,
+      };
       const res = await createSubscriptionOrder(payload);
 
       if (res.data.status) {
@@ -91,13 +109,12 @@ function BillingContent() {
         const options = {
           key: RZP_TEST_KEY_ID,
           amount: data?.amount,
-          currency,
+          currency: plan.currency,
           name: "Leado",
-          description: `Pro Plan — ${isYearly ? "Yearly" : "Monthly"}`,
+          description: `${plan.display_name} — ${isYearly ? "Yearly" : "Monthly"}`,
           image: "/icon.png",
           order_id: data.id,
           handler: async (response: any) => {
-            // Step 3: Verify payment on your backend
             const res = await confirmSubscription({
               razorpay_order_id: response.razorpay_order_id,
               razorpay_payment_id: response.razorpay_payment_id,
@@ -140,6 +157,12 @@ function BillingContent() {
     }
   };
 
+  if (fetchingPlan) {
+    return <div className="w-full max-w-lg" />;
+  }
+
+  if (!plan) return null;
+
   return (
     <div className="w-full max-w-lg">
       <div className="">
@@ -159,16 +182,16 @@ function BillingContent() {
           <div className="bg-[var(--color-coral)]/10 border-b border-white/[0.07] px-6 py-4 flex items-center justify-between">
             <div>
               <p className="font-display font-semibold text-[var(--color-text-primary)]">
-                Leado Pro
+                Leado {plan.display_name}
               </p>
               <p className="text-xs text-[var(--color-text-secondary)] mt-0.5 capitalize">
-                {billing} · {currency}
+                {plan.billing_cycle} · {plan.currency}
               </p>
             </div>
             <div className="text-right">
               <p className="font-display font-semibold text-xl text-[var(--color-text-primary)]">
                 {symbol}
-                {displayPrice}
+                {plan.price}
               </p>
               <p className="text-xs text-[var(--color-text-muted)]">
                 /{isYearly ? "year" : "month"}
@@ -180,9 +203,9 @@ function BillingContent() {
           <div className="divide-y divide-white/[0.06]">
             <Row label="Name" value={user?.name ?? "—"} />
             <Row label="Email" value={user?.email ?? "—"} />
-            <Row label="Plan" value="Leado Pro" />
+            <Row label="Plan" value={`Leado ${plan.display_name}`} />
             <Row label="Billing" value={isYearly ? "Yearly" : "Monthly"} />
-            <Row label="Amount" value={`${symbol}${displayPrice}`} highlight />
+            <Row label="Amount" value={`${symbol}${plan.price}`} highlight />
           </div>
 
           {/* Pay button */}
@@ -192,7 +215,7 @@ function BillingContent() {
               disabled={loading || !rzpReady}
               className="w-full cursor-pointer font-medium bg-[var(--color-coral)] text-white rounded-full py-3 text-sm flex items-center justify-center gap-2 hover:brightness-110 transition-all disabled:opacity-50 disabled:pointer-events-none"
             >
-              {loading ? "Opening checkout..." : `Pay ${symbol}${displayPrice}`}
+              {loading ? "Opening checkout..." : `Pay ${symbol}${plan.price}`}
             </button>
 
             <div className="flex items-center justify-center gap-1.5 mt-3">

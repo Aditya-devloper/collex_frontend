@@ -299,11 +299,11 @@ const LeadDetail = () => {
             </Button>
           </Link>
 
-          <CallByAiDialog
+          {/* <CallByAiDialog
             leadId={lead._id}
             leadName={lead.name}
             notes={lead.notes}
-          />
+          /> */}
         </div>
       </div>
 
@@ -386,12 +386,12 @@ const LeadDetail = () => {
         </Card>
 
         {/* AI Call Outcome Card naya add kiya */}
-        <CallOutcomeCard
+        {/* <CallOutcomeCard
           lastCallStatus={lead.last_call_status}
           lastCallAt={lead.last_call_at}
           callAttempts={lead.call_attempts}
           lastCallResult={lead.last_call_result}
-        />
+        /> */}
       </div>
       {/* Notes Section */}
       <Card>

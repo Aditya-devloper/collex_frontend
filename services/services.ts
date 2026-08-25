@@ -142,3 +142,6 @@ export const agentLogin = (payload: any) =>
 
 export const getMyAgentProfile = (payload: any) =>
   api.post(`/human-agent/getMyAgentProfile`, payload);
+
+// Plans
+export const getPlans = (payload: any) => api.post(`/plan/getPlans`, payload);
