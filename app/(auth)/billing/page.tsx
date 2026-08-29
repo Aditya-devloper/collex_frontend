@@ -97,9 +97,7 @@ function BillingContent() {
 
     try {
       const payload = {
-        plan: plan.name,
-        currency: plan.currency,
-        billing_cycle: plan.billing_cycle,
+        planID: plan._id,
       };
       const res = await createSubscriptionOrder(payload);
 
