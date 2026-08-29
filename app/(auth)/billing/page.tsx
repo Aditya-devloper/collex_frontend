@@ -108,7 +108,7 @@ function BillingContent() {
           key: RZP_TEST_KEY_ID,
           amount: data?.amount,
           currency: plan.currency,
-          name: "Leado",
+          name: "Collex",
           description: `${plan.display_name} — ${isYearly ? "Yearly" : "Monthly"}`,
           image: "/icon.png",
           order_id: data.id,
@@ -129,7 +129,7 @@ function BillingContent() {
             email: user.email ?? "",
           },
           theme: {
-            color: "#FF6B4A",
+            color: "#0a0d17",
             backdrop_color: "#0A0D17",
           },
           modal: {
