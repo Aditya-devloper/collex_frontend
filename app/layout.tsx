@@ -20,32 +20,34 @@ const inter = Inter({
   display: "swap",
 });
 
-const siteUrl = "https://leadoapp.vercel.app";
-const siteName = "Leado";
-const title = "Leado — Never lose a lead to a forgotten follow-up";
+const siteUrl = "https://collexai.vercel.app"; // update to the real domain once live
+const siteName = "Collex AI";
+const title = "Collex AI — AI chatbot & follow-ups that never forget a lead";
 const description =
-  "Leado helps small sales teams track leads, set follow-up reminders, and close more deals without the spreadsheet chaos.";
+  "Collex AI gives small sales teams an AI chatbot that captures leads automatically, tracks the pipeline, and reminds you to follow up  no more spreadsheet chaos.";
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: {
     default: title,
-    template: "%s · Leado",
+    template: "%s · Collex AI",
   },
   description,
   applicationName: siteName,
   keywords: [
-    "lead management system",
+    "AI lead management",
+    "AI chatbot for business",
     "CRM for small business",
     "lead tracking software",
     "follow-up reminder app",
     "sales pipeline tool",
+    "AI calling agent",
     "lead management India",
-    "Leado",
+    "Collex AI",
   ],
-  authors: [{ name: "Leado" }],
-  creator: "Leado",
-  publisher: "Leado",
+  authors: [{ name: "Collex AI" }],
+  creator: "Collex AI",
+  publisher: "Collex AI",
 
   alternates: {
     canonical: "/",
@@ -56,7 +58,7 @@ export const metadata: Metadata = {
       { url: "/icon.png", type: "image/png", sizes: "192x192" },
       { url: "/favicon.ico", sizes: "48x48" },
     ],
-    apple: [{ url: "/apple-icon.png", sizes: "180x180" }],
+    // apple: [{ url: "/apple-icon.png", sizes: "180x180" }],
   },
   manifest: "/manifest.json",
 
@@ -72,7 +74,7 @@ export const metadata: Metadata = {
         url: "/og-image.png",
         width: 1200,
         height: 630,
-        alt: "Leado — lead management for small sales teams",
+        alt: "Collex AI — AI chatbot and calling agent for small sales teams",
       },
     ],
   },

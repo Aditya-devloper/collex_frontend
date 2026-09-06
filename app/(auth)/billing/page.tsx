@@ -129,7 +129,7 @@ function BillingContent() {
             email: user.email ?? "",
           },
           theme: {
-            color: "#0a0d17",
+            color: "#FF6B4A",
             backdrop_color: "#0A0D17",
           },
           modal: {

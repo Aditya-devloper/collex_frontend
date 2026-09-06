@@ -2,7 +2,7 @@ import Image from "next/image";
 
 export default function Footer() {
   const message = encodeURIComponent(
-    "Hi Aditya, I want to know more about Leado.",
+    "Hi Aditya, I want to know more about Collex AI.",
   );
 
   return (
@@ -10,7 +10,7 @@ export default function Footer() {
       <div className="max-w-6xl mx-auto flex items-center justify-between">
         <Image
           src="/logo-horizontal-dark.svg"
-          alt="Leado"
+          alt="Collex AI"
           width={110}
           height={29}
         />
@@ -39,8 +39,8 @@ export default function Footer() {
         </div>
       </div>
       <p className="text-xs text-center mt-5 text-[var(--color-text-muted)]">
-        © {new Date().getFullYear()} Leado. Built for teams who follow up on
-        time.
+        © {new Date().getFullYear()} Collex AI. AI agents that chat, call, and
+        follow up  so no lead is forgotten.
       </p>
     </footer>
   );

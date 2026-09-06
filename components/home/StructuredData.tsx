@@ -2,18 +2,18 @@ export default function StructuredData() {
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "SoftwareApplication",
-    name: "Leado",
+    name: "Collex AI",
     applicationCategory: "BusinessApplication",
     operatingSystem: "Web",
     description:
-      "Leado helps small sales teams track leads, set follow-up reminders, and close more deals without spreadsheets.",
+      "Collex AI gives small sales teams an AI chatbot and follow-up system that captures leads, tracks pipelines, and reminds you to follow up  so no lead is forgotten.",
     offers: {
       "@type": "Offer",
-      price: "599",
+      price: "1999",
       priceCurrency: "INR",
       priceValidUntil: "2027-12-31",
     },
-    url: "https://leadoapp.vercel.app",
+    url: "https://collexai.vercel.app",
   };
 
   return (

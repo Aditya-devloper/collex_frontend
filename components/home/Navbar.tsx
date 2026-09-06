@@ -105,7 +105,7 @@ export default function Navbar() {
         <a href="#" className="flex items-center">
           <Image
             src="/logo-horizontal-dark.svg"
-            alt="Leado"
+            alt="Collex AI"
             width={132}
             height={35}
             priority

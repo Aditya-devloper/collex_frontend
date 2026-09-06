@@ -27,14 +27,14 @@ export default function FinalCTA() {
           Stop losing leads to a messy spreadsheet
         </h2>
         <p className="relative mt-4 text-[var(--color-text-secondary)] max-w-md mx-auto">
-          Set up your first pipeline in five minutes. Free for 14 days, no card
-          required.
+          Let AI chat with visitors and follow up with leads for you. Free for
+          14 days, no card required.
         </p>
         <a
           onClick={handleAuthRedirect}
           className="relative cursor-pointer inline-flex items-center gap-2 mt-8 font-medium bg-[var(--color-coral)] text-white rounded-full px-7 py-3.5 hover:brightness-110 transition-all"
         >
-          Start free with Leado
+          Start free with Collex AI
           <ArrowRight size={16} />
         </a>
       </div>

@@ -21,21 +21,21 @@ export default function Hero() {
       <div className="max-w-4xl mx-auto text-center">
         <div className="inline-flex items-center gap-2 glass rounded-full px-4 py-1.5 text-xs text-[var(--color-text-secondary)] mb-6">
           <span className="w-1.5 h-1.5 rounded-full bg-[var(--color-mint)]" />
-          Built for teams who are still using Excel for leads
+          AI chatbot + calling agent for every lead you get
         </div>
 
         <h1 className="font-display font-semibold text-[2.5rem] sm:text-6xl lg:text-[4.2rem] leading-[1.05] tracking-tight text-gradient">
-          Every lead deserves
-          <br />a follow-up.{" "}
+          Let AI handle
+          <br />every follow-up.{" "}
           <span className="text-[var(--color-coral)]">
             Not a forgotten tab.
           </span>
         </h1>
 
         <p className="mt-6 text-base sm:text-lg text-[var(--color-text-secondary)] max-w-xl mx-auto leading-relaxed">
-          Leado tracks every lead from first contact to closed deal with
-          reminders that actually fire, so nothing slips through a spreadsheet
-          again.
+          Collex AI chats with your website visitors, captures every lead
+          automatically, and reminds you the moment a follow-up is due  so
+          nothing slips through a spreadsheet again.
         </p>
 
         <div className="mt-9 flex flex-col sm:flex-row items-center justify-center gap-3">
@@ -55,7 +55,7 @@ export default function Hero() {
         </div>
 
         <p className="mt-4 text-xs text-[var(--color-text-muted)]">
-          14-day free trial · Cancel anytime · Setup takes 5 minutes
+          14-day free trial · AI chatbot included · Setup takes 5 minutes
         </p>
       </div>
 

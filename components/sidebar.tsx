@@ -26,7 +26,7 @@ const navItems = [
   { name: "Dashboard", href: "/dashboard", icon: Home },
   { name: "Leads", href: "/leads", icon: ClipboardList },
   // { name: "Agents", href: "/agents", icon: UserRoundCog },
-  // { name: "Call History", href: "/calls-history", icon: PhoneCall },
+  { name: "Call History", href: "/calls-history", icon: PhoneCall },
   { name: "Chat Widget", href: "/chat-widget", icon: MessagesSquare },
   { name: "Knowledge Base", href: "/ai-knowledge", icon: Brain },
   { name: "Business", href: "/business", icon: Building2 },

@@ -6,19 +6,19 @@ import { Plus } from "lucide-react";
 const faqs = [
   {
     q: "Do I need to be technical to set this up?",
-    a: "No. If you can use WhatsApp, you can use Leado. Sign up, add your first lead, and you're set up in under five minutes.",
+    a: "No. If you can use WhatsApp, you can use Collex AI. Sign up, add your first lead, and you're set up in under five minutes.",
   },
   {
     q: "Can I move my existing leads from Excel?",
     a: "Yes  export your spreadsheet as a CSV and import it directly. All your leads come in at once, no manual re-entry.",
   },
-  // {
-  //   q: "What happens after the free trial?",
-  //   a: "You can upgrade to the Pro plan to keep going, or export your data anytime  nothing is locked in.",
-  // },
+  {
+    q: "How does the AI chatbot actually work?",
+    a: "You add it to your website with one script tag. It answers visitor questions using your own business info, then automatically saves their details as a new lead  no one has to type anything in.",
+  },
   {
     q: "Is this only for real estate?",
-    a: "No  Leado works for any small team that's managing leads manually: coaching centers, clinics, agencies, freelancers, and more.",
+    a: "No  Collex AI works for any small team that's managing leads manually: coaching centers, clinics, agencies, freelancers, and more.",
   },
 ];
 

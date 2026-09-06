@@ -19,7 +19,7 @@
   var WIDGET_BASE_URL = scriptTag.getAttribute("data-base-url");
   var BACKEND_URL = is_prod
     ? "https://lms-backend-e3b5.onrender.com"
-    : "http://localhost:3000";
+    : "http://localhost:5000";
 
   var ICONS = {
     chat:
