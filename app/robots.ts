@@ -6,6 +6,6 @@ export default function robots(): MetadataRoute.Robots {
       userAgent: "*",
       allow: "/",
     },
-    sitemap: "https://leadoapp.vercel.app/sitemap.xml",
+    sitemap: "https://collex-ai.vercel.app/sitemap.xml",
   };
 }

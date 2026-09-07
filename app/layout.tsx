@@ -20,7 +20,7 @@ const inter = Inter({
   display: "swap",
 });
 
-const siteUrl = "https://collexai.vercel.app"; // update to the real domain once live
+const siteUrl = "https://collex-ai.vercel.app";
 const siteName = "Collex AI";
 const title = "Collex AI — AI chatbot & follow-ups that never forget a lead";
 const description =

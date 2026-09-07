@@ -1,7 +1,7 @@
 import type { MetadataRoute } from "next";
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const baseUrl = "https://leadoapp.vercel.app";
+  const baseUrl = "https://collex-ai.vercel.app";
 
   return [
     {
